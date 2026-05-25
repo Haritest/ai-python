@@ -1,6 +1,24 @@
-# AWS Architecture - Detailed Mermaid Diagrams
+# Architecture Diagrams
+
+## Overview
+
+This document captures the primary system architecture diagrams for the platform. It uses Mermaid notation for visual design and includes topology, cluster, data, CI/CD, and storage architecture views.
+
+## Contents
+
+- [Overview](#overview)
+- [Request Flow Diagram](#1-request-flow-diagram)
+- [EKS Cluster Architecture](#2-eks-cluster-architecture)
+- [Data Layer Architecture](#3-data-layer-architecture)
+- [CI/CD Pipeline Flow](#4-cicd-pipeline-flow)
+- [Storage & Backup Architecture](#5-storage--backup-architecture)
+- [Diagram Conventions](#diagram-conventions)
+
+---
 
 ## 1. Request Flow Diagram
+
+This diagram shows the external request path from the client through edge protection, load balancing, and into the application deployment.
 
 ```mermaid
 graph LR
@@ -50,9 +68,13 @@ graph LR
     BEn --> S3
 ```
 
+This flow emphasizes secure ingress, intelligent routing, and service-to-data connectivity across frontend and backend tiers.
+
 ---
 
 ## 2. EKS Cluster Architecture
+
+This view describes the AWS networking and EKS cluster topology, including public/private subnets, worker nodes, control plane components, and pod placement.
 
 ```mermaid
 graph TB
@@ -108,9 +130,13 @@ graph TB
     API --> Sched
 ```
 
+The cluster diagram highlights managed control plane separation and multiple worker nodes running frontend, backend, and load balancing pods.
+
 ---
 
 ## 3. Data Layer Architecture
+
+This section illustrates database infrastructure, security boundaries, and backup flows for the stateful data tier.
 
 ```mermaid
 graph TB
@@ -157,9 +183,13 @@ graph TB
     KMS -->|Encrypt| NEOBK
 ```
 
+This data layer emphasizes encryption, secrets management, and multi-node replication for database resiliency.
+
 ---
 
 ## 4. CI/CD Pipeline Flow
+
+The pipeline diagram outlines build, test, containerization, deployment, and verification stages from source control to EKS.
 
 ```mermaid
 graph LR
@@ -194,9 +224,54 @@ graph LR
     Verify --> Notify
 ```
 
+The CI/CD flow supports continuous delivery with a verification step before release notification.
+
 ---
 
 ## 5. Storage & Backup Architecture
+
+This diagram shows how cloud storage and backup services integrate with the application and data tiers to ensure durable recovery.
+
+```mermaid
+graph LR
+    AppTier["Application Tier<br/>EKS / EC2"]
+    
+    S3["📦 Amazon S3<br/>Object Storage<br/>Static Assets, Logs"]
+    
+    Backup["💾 AWS Backup<br/>Policy-Based Backups"]
+    
+    EBS["🔌 EBS Volumes<br/>Database Storage"]
+    
+    Snapshot["🗄️ Snapshots<br/>Daily + Retention Policies"]
+    
+    Archive["🥶 S3 Glacier<br/>Long-Term Retention"]
+    
+    AppTier -->|Stores Data| S3
+    AppTier -->|Attaches| EBS
+    EBS --> Snapshot
+    Snapshot --> Backup
+    S3 --> Backup
+    Backup --> Archive
+```
+
+This section standardizes the storage layer by showing object storage, EBS snapshot backup, and long-term archival paths.
+
+---
+
+## Diagram Conventions
+
+- Mermaid diagrams are used for all architecture views.
+- Section headings use a consistent numbering scheme.
+- Icons and labels are chosen for clarity and service recognition.
+- Each diagram includes a brief summary to explain intent.
+
+## Diagram Conventions
+
+- Mermaid code blocks are used for all diagrams.
+- Icons show service type and intent.
+- Each section includes a short summary for clarity.
+- Headings follow a consistent numbered structure.
+
 
 ```mermaid
 graph TB
