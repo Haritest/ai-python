@@ -183,6 +183,58 @@ The infrastructure is organized into the following logical tiers:
 
 ---
 
+## Infrastructure Diagram
+
+```mermaid
+graph LR
+    Client["🌐 Client / Browser"] --> DNS["DNS / Route 53"]
+    DNS --> CDN["CloudFront (optional)"]
+    CDN --> WAF["AWS WAF"]
+    WAF --> ALB["ALB / HTTPS"]
+    ALB --> Ingress["EKS ALB Ingress Controller"]
+    Ingress --> FE["Frontend Service (EKS)"]
+    Ingress --> BE["Backend Services (EKS)"]
+    BE --> HAProxy["HAProxy Internal Proxy"]
+    FE --> RDS["PostgreSQL on EC2"]
+    BE --> RDS
+    BE --> Cassandra["Cassandra Cluster on EC2"]
+    BE --> Neo4j["Neo4j on EC2"]
+    FE --> S3["Amazon S3"]
+    Jenkins["Jenkins CI/CD"] --> ECR["Amazon ECR"]
+    ECR --> EKS["Amazon EKS"]
+    Jenkins --> EKS
+    RDS --> Backup["EBS Snapshots / AWS Backup"]
+    Cassandra --> Backup
+    Neo4j --> Backup
+    S3 --> Backup
+    ALB -->|Health & Metrics| CloudWatch["CloudWatch / Monitoring"]
+    EKS --> CloudWatch
+    EC2["EC2 Database Hosts"] --> CloudWatch
+    Secrets["AWS Secrets Manager / KMS"] --> RDS
+    Secrets --> Cassandra
+    Secrets --> Neo4j
+    Secrets --> EKS
+    subgraph AWS["AWS Infrastructure"]
+      ALB
+      WAF
+      Ingress
+      FE
+      BE
+      HAProxy
+      RDS
+      Cassandra
+      Neo4j
+      S3
+      ECR
+      EKS
+      Backup
+      CloudWatch
+      Secrets
+    end
+```
+
+---
+
 ## Summary
 This design frames the current AWS architecture into two levels:
 - The high-level design explains the main functional tiers, traffic flow, and platform intent.
